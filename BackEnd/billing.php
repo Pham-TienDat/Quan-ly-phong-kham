@@ -1,0 +1,80 @@
+<?php
+header('Content-Type: application/json; charset=utf-8');
+
+function getDB() {
+    return new PDO(
+        "mysql:host=127.0.0.1;dbname=clinic_db;charset=utf8mb4",
+        "root",
+        "123",
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    );
+}
+
+if (!isset($_GET['encounter_id'])) {
+    echo json_encode([
+        'success' => false,
+        'error' => 'Missing encounter_id'
+    ]);
+    exit;
+}
+
+$encounterId = (int)$_GET['encounter_id'];
+
+try {
+    $db = getDB();
+
+    // 1. Lấy thuốc
+    $stmt = $db->prepare("
+        SELECT 
+            m.name,
+            m.price,
+            pi.qty,
+            (m.price * pi.qty) AS subtotal
+        FROM prescriptions pr
+        JOIN prescription_items pi ON pr.id = pi.prescription_id
+        JOIN medicines m ON pi.medicine_id = m.id
+        WHERE pr.encounter_id = ?
+    ");
+    $stmt->execute([$encounterId]);
+    $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $total = 0;
+    foreach ($items as $i) {
+        $total += $i['subtotal'];
+    }
+
+    // 2. Kiểm tra invoice
+    $stmt = $db->prepare("SELECT id FROM invoices WHERE encounter_id = ?");
+    $stmt->execute([$encounterId]);
+    $invoice = $stmt->fetch();
+
+    if (!$invoice) {
+        // tạo mới
+        $stmt = $db->prepare("
+            INSERT INTO invoices (encounter_id, total_amount, status)
+            VALUES (?, ?, 'unpaid')
+        ");
+        $stmt->execute([$encounterId, $total]);
+        $invoiceId = $db->lastInsertId();
+    } else {
+        // cập nhật tổng tiền
+        $invoiceId = $invoice['id'];
+        $stmt = $db->prepare("
+            UPDATE invoices SET total_amount = ? WHERE id = ?
+        ");
+        $stmt->execute([$total, $invoiceId]);
+    }
+
+    echo json_encode([
+        'success' => true,
+        'invoice_id' => $invoiceId,
+        'items' => $items,
+        'total_amount' => $total
+    ]);
+
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
+}
