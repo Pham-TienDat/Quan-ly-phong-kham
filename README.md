@@ -11,7 +11,10 @@
 - Tạo hoá đơn
 - Thanh toán
 - Cập nhật trạng thái hoá đơn
-
+## Nghiệp vụ: Đăng ký khám bệnh
+- Tiếp nhận/Tra cứu
+- Chỉ định khoa khám
+- Cấp số và tạo lượt khám
 ## Công nghệ
 - Frontend: HTML, CSS, JS
 - Backend: PHP (PDO)
