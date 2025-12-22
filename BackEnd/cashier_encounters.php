@@ -7,7 +7,7 @@ function getDBConnection() {
     $host = 'localhost';
     $dbname = 'clinic_db';
     $username = 'root';
-    $password = '123';
+    $password = '';
 
     return new PDO(
         "mysql:host=$host;dbname=$dbname;charset=utf8mb4",

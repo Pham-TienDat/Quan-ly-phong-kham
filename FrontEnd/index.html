@@ -156,6 +156,7 @@
         <h2>CLINIC MANAGEMENT</h2>
         <ul class="nav-menu">
             <li class="nav-item active" onclick="navigateTo('index')">Trang chủ</li>
+            <li class="nav-item" onclick="navigateTo('registration')">Đăng ký khám</li>
             <li class="nav-item" onclick="navigateTo('hoso')">Hồ sơ bệnh nhân</li>
             <li class="nav-item" onclick="navigateTo('appointments')">Lịch hẹn</li>
             <li class="nav-item" onclick="navigateTo('inventory')">Kho thuốc</li>
@@ -206,26 +207,50 @@
     </div>
 
     <script>
-        // DỮ LIỆU MẪU
-        const appointments = [
-            { name: "Nguyễn Văn A", time: "08:30", doctor: "BS. Hùng", status: "Đã đến" },
-            { name: "Trần Thị B", time: "09:15", doctor: "BS. Lan", status: "Đang khám" },
-            { name: "Lê Văn C", time: "10:00", doctor: "BS. Hùng", status: "Chờ khám" }
-        ];
+        // HÀM HIỂN THỊ DỮ LIỆU TỪ BACKEND
+async function loadAppointments() {
+    const tableBody = document.getElementById('appointmentList');
+    
+    // Hiển thị trạng thái đang tải (tùy chọn nhưng nên có)
+    tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Đang tải dữ liệu...</td></tr>';
 
-        // HÀM HIỂN THỊ DỮ LIỆU
-        function loadAppointments() {
-            const tableBody = document.getElementById('appointmentList');
-            tableBody.innerHTML = appointments.map(appt => `
-                <tr>
-                    <td><strong>${appt.name}</strong></td>
-                    <td>${appt.time}</td>
-                    <td>${appt.doctor}</td>
-                    <td><span class="status-pill">${appt.status}</span></td>
-                    <td><button onclick="viewDetail('${appt.name}')" style="cursor:pointer; border:none; background:none; color:blue; text-decoration:underline;">Chi tiết</button></td>
-                </tr>
-            `).join('');
+    try {
+        // 1. Gọi đến file PHP backend
+        const response = await fetch('api/get_appointments.php');
+        
+        // 2. Kiểm tra nếu phản hồi từ server ok
+        if (!response.ok) throw new Error('Không thể kết nối với server');
+
+        // 3. Chuyển đổi dữ liệu nhận được thành JSON
+        const appointments = await response.json();
+
+        // 4. Kiểm tra nếu có dữ liệu
+        if (appointments.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Không có lịch hẹn nào hôm nay.</td></tr>';
+            return;
         }
+
+        // 5. Đổ dữ liệu vào bảng (Lưu ý: tên cột phải khớp với tên cột trong database)
+        tableBody.innerHTML = appointments.map(appt => `
+            <tr>
+                <td><strong>${appt.patient_name}</strong></td>
+                <td>${appt.appointment_time}</td>
+                <td>${appt.doctor_name}</td>
+                <td><span class="status-pill">${appt.status}</span></td>
+                <td>
+                    <button onclick="viewDetail('${appt.patient_name}')" 
+                            style="cursor:pointer; border:none; background:none; color:blue; text-decoration:underline;">
+                        Chi tiết
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+
+    } catch (error) {
+        console.error('Lỗi:', error);
+        tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Lỗi tải dữ liệu: ${error.message}</td></tr>`;
+    }
+}
 
         // HÀM ĐIỀU HƯỚNG TRANG 
         function navigateTo(page) {

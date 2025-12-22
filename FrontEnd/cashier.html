@@ -211,7 +211,7 @@
 let currentInvoiceId = null;
 
 // Load encounters
-fetch('http://127.0.0.1:8080/BackEnd/cashier_encounters.php')
+fetch('http://localhost/clinic/api/cashier_encounters.php')
     .then(res => res.json())
     .then(data => {
         const tbody = document.getElementById('encounterTable');
@@ -241,7 +241,7 @@ fetch('http://127.0.0.1:8080/BackEnd/cashier_encounters.php')
     });
 
 function viewBill(encounterId) {
-    fetch(`http://127.0.0.1:8080/BackEnd/billing.php?encounter_id=${encounterId}`)
+    fetch(`http://localhost/clinic/api/billing.php?encounter_id=${encounterId}`)
         .then(res => res.json())
         .then(data => {
             currentInvoiceId = data.invoice_id;
@@ -260,7 +260,7 @@ function viewBill(encounterId) {
 }
 
 function pay() {
-    fetch('http://127.0.0.1:8080/BackEnd/pay.php', {
+    fetch('http://localhost/clinic/api/pay.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: `invoice_id=${currentInvoiceId}&method=Tien mat`
