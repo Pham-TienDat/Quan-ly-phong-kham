@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Thu ngân – Phòng khám</title>
-    // CSS STYLES
-    <style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+     <style>
         :root {
             --primary-color: #2563eb;
             --secondary-color: #64748b;
@@ -26,41 +27,6 @@
             display: flex;
             min-height: 100vh;
         }
-
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            background-color: var(--text-dark);
-            color: var(--white);
-            padding: 20px;
-            position: fixed;
-            height: 100%;
-        }
-
-        .sidebar h2 {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-            color: var(--primary-color);
-            text-align: center;
-        }
-
-        .nav-menu {
-            list-style: none;
-        }
-
-        .nav-item {
-            padding: 12px 15px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: 0.3s;
-        }
-
-        .nav-item.active,
-        .nav-item:hover {
-            background-color: var(--primary-color);
-        }
-
         /* Main content */
         .main-content {
             margin-left: 250px;
@@ -150,21 +116,10 @@
 </head>
 
 <body>
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-    <h2>🏥 Phòng khám</h2>
-    <ul class="nav-menu">
-        <li class="nav-item active">💵 Thu ngân</li>
-        <li class="nav-item">📊 Báo cáo</li>
-        <li class="nav-item">⚙️ Cài đặt</li>
-    </ul>
-</div>
-
 <!-- MAIN -->
-<div class="main-content">
-
-    <div class="header">
+<div id="sidebar-placeholder"></div>
+<div class="vw-100" style="margin-left: 250px">
+    <div class="header text-center pt-5">
         <h2>Thu ngân – Danh sách chờ thanh toán</h2>
     </div>
 
@@ -173,10 +128,6 @@
         <div class="stat-card">
             <h3>Số lượt chờ</h3>
             <p id="countWaiting">0</p>
-        </div>
-        <div class="stat-card">
-            <h3>Tổng tiền</h3>
-            <p id="sumMoney">0</p>
         </div>
     </div>
 
@@ -199,46 +150,14 @@
 
     <!-- BILL -->
     <div class="bill-box" id="billBox" style="display:none;">
-        <h3>🧾 Chi tiết hóa đơn</h3>
+        <h3>Chi tiết hóa đơn</h3>
         <ul id="billItems"></ul>
         <p><b>Tổng tiền:</b> <span id="totalAmount">0</span> VNĐ</p>
         <button class="btn-action" onclick="pay()">Thanh toán</button>
     </div>
-
 </div>
-
 <script>
 let currentInvoiceId = null;
-
-// Load encounters
-fetch('http://localhost/clinic/api/cashier_encounters.php')
-    .then(res => res.json())
-    .then(data => {
-        const tbody = document.getElementById('encounterTable');
-        document.getElementById('countWaiting').innerText = data.data.length;
-
-        let sum = 0;
-
-        data.data.forEach(e => {
-            sum += Number(e.total_amount ?? 0);
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${e.encounter_id}</td>
-                <td>${e.patient_name}</td>
-                <td>${e.encounter_date}</td>
-                <td>${e.total_amount ?? 0}</td>
-                <td><span class="status-pill">Chưa thanh toán</span></td>
-                <td>
-                    <button class="btn-action" onclick="viewBill(${e.encounter_id})">
-                        Xem hóa đơn
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-
-        document.getElementById('sumMoney').innerText = sum;
-    });
 
 function viewBill(encounterId) {
     fetch(`http://localhost/clinic/api/billing.php?encounter_id=${encounterId}`)
@@ -275,6 +194,41 @@ function pay() {
         }
     });
 }
+
+         // Chạy khi trang load xong
+        window.onload = async function() {
+    await loadSidebar();
+    await fetch('http://localhost/clinic/api/cashier_encounters.php')
+    .then(res => res.json())
+    .then(data => {
+        const tbody = document.getElementById('encounterTable');
+        document.getElementById('countWaiting').innerText = data.data.length;
+
+        let sum = 0;
+
+        data.data.forEach(e => {
+            sum += Number(e.total_amount ?? 0);
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${e.encounter_id}</td>
+                <td>${e.patient_name}</td>
+                <td>${e.encounter_date}</td>
+                <td>${e.total_amount ?? 0}</td>
+                <td><span class="status-pill">Chưa thanh toán</span></td>
+                <td>
+                    <button class="btn-action" onclick="viewBill(${e.encounter_id})">
+                        Xem hóa đơn
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('sumMoney').innerText = sum;
+    });
+    
+};
 </script>
+<script src="main.js"></script>
 </body>
 </html>

@@ -4,171 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ Thống Quản Lý Phòng Khám</title>
-    
-    <style>
-        /* CSS STYLES */
-        :root {
-            --primary-color: #2563eb;
-            --secondary-color: #64748b;
-            --success-color: #22c55e;
-            --bg-color: #f8fafc;
-            --text-dark: #1e293b;
-            --white: #ffffff;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar - Thanh bên */
-        .sidebar {
-            width: 250px;
-            background-color: var(--text-dark);
-            color: var(--white);
-            padding: 20px;
-            position: fixed;
-            height: 100%;
-        }
-
-        .sidebar h2 {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-            color: var(--primary-color);
-            text-align: center;
-        }
-
-        .nav-menu {
-            list-style: none;
-        }
-
-        .nav-item {
-            padding: 12px 15px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: 0.3s;
-        }
-
-        .nav-item:hover, .nav-item.active {
-            background-color: var(--primary-color);
-        }
-
-        /* Main Content */
-        .main-content {
-            margin-left: 250px;
-            padding: 30px;
-            width: calc(100% - 250px);
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        /* Dashboard Stats */
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: var(--white);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        .stat-card h3 {
-            font-size: 0.9rem;
-            color: var(--secondary-color);
-            margin-bottom: 10px;
-        }
-
-        .stat-card p {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        /* Table Section */
-        .table-container {
-            background: var(--white);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-        }
-
-        .table-container h3 {
-            margin-bottom: 20px;
-            color: var(--text-dark);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table th, table td {
-            text-align: left;
-            padding: 12px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .status-pill {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .btn-action {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        .btn-action:hover {
-            opacity: 0.9;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="sidebar">
-        <h2>CLINIC MANAGEMENT</h2>
-        <ul class="nav-menu">
-            <li class="nav-item active" onclick="navigateTo('index')">Trang chủ</li>
-            <li class="nav-item" onclick="navigateTo('registration')">Đăng ký khám</li>
-            <li class="nav-item" onclick="navigateTo('hoso')">Hồ sơ bệnh nhân</li>
-            <li class="nav-item" onclick="navigateTo('appointments')">Lịch hẹn</li>
-            <li class="nav-item" onclick="navigateTo('inventory')">Kho thuốc</li>
-            <li class="nav-item" onclick="navigateTo('settings')">Cài đặt</li>
-        </ul>
-    </div>
-
-    <div class="main-content">
-        <div class="header">
-            <button class="btn-action" onclick="createNewAppointment()">+ Thêm lịch hẹn mới</button>
-        </div>
-
+    <div id="sidebar-placeholder"></div>
+    <div class="main-content" id= "app">
         <div class="stats-container">
             <div class="stat-card">
                 <h3>Bệnh nhân hôm nay</h3>
@@ -180,7 +22,7 @@
             </div>
             <div class="stat-card">
                 <h3>Bác sĩ đang trực</h3>
-                <p>12</p>
+                <p>2</p>
             </div>
             <div class="stat-card">
                 <h3>Doanh thu ngày</h3>
@@ -189,7 +31,7 @@
         </div>
 
         <div class="table-container">
-            <h3>Lịch hẹn gần đây</h3>
+            <h3>Lịch hẹn hôm nay</h3>
             <table>
                 <thead>
                     <tr>
@@ -206,70 +48,13 @@
         </div>
     </div>
 
+    <script src="main.js"></script>
     <script>
-        // HÀM HIỂN THỊ DỮ LIỆU TỪ BACKEND
-async function loadAppointments() {
-    const tableBody = document.getElementById('appointmentList');
-    
-    // Hiển thị trạng thái đang tải (tùy chọn nhưng nên có)
-    tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Đang tải dữ liệu...</td></tr>';
-
-    try {
-        // 1. Gọi đến file PHP backend
-        const response = await fetch('api/get_appointments.php');
-        
-        // 2. Kiểm tra nếu phản hồi từ server ok
-        if (!response.ok) throw new Error('Không thể kết nối với server');
-
-        // 3. Chuyển đổi dữ liệu nhận được thành JSON
-        const appointments = await response.json();
-
-        // 4. Kiểm tra nếu có dữ liệu
-        if (appointments.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Không có lịch hẹn nào hôm nay.</td></tr>';
-            return;
-        }
-
-        // 5. Đổ dữ liệu vào bảng (Lưu ý: tên cột phải khớp với tên cột trong database)
-        tableBody.innerHTML = appointments.map(appt => `
-            <tr>
-                <td><strong>${appt.patient_name}</strong></td>
-                <td>${appt.appointment_time}</td>
-                <td>${appt.doctor_name}</td>
-                <td><span class="status-pill">${appt.status}</span></td>
-                <td>
-                    <button onclick="viewDetail('${appt.patient_name}')" 
-                            style="cursor:pointer; border:none; background:none; color:blue; text-decoration:underline;">
-                        Chi tiết
-                    </button>
-                </td>
-            </tr>
-        `).join('');
-
-    } catch (error) {
-        console.error('Lỗi:', error);
-        tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Lỗi tải dữ liệu: ${error.message}</td></tr>`;
-    }
-}
-
-        // HÀM ĐIỀU HƯỚNG TRANG 
-        function navigateTo(page) {
-            window.location.href = page + ".html";
-        }
-
-        function createNewAppointment() {
-            const name = prompt("Nhập tên bệnh nhân mới:");
-            if (name) {
-                alert("Đã tạo lịch hẹn cho: " + name);
-            }
-        }
-
-        function viewDetail(name) {
-            alert("Đang mở hồ sơ bệnh án của: " + name);
-        }
-
-        // Chạy khi trang load xong
-        window.onload = loadAppointments;
+         // Chạy khi trang load xong
+        window.onload = async function() {
+    await loadSidebar();      // Chạy tải sidebar trước
+    await loadAppointments(); // Sau đó tải dữ liệu lịch hẹn
+};
     </script>
 </body>
 </html>

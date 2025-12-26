@@ -1,11 +1,25 @@
 <?php
+// File: api/patient_records.php
 header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");;
+// Khi trình duyệt gửi phương thức OPTIONS, chúng ta trả về status 200 và dừng script ngay lập tức.
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
-function getDB() {
+function getDBConnection() {
+    $host = 'localhost';
+    $dbname = 'clinic_db';
+    $username = 'root';
+    $password = '';
+
     return new PDO(
-        "mysql:host=127.0.0.1;dbname=clinic_db;charset=utf8mb4",
-        "root",
-        "",
+        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
+        $username,
+        $password,
         [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
     );
 }
@@ -17,12 +31,9 @@ if (!isset($_GET['encounter_id'])) {
     ]);
     exit;
 }
-
 $encounterId = (int)$_GET['encounter_id'];
-
 try {
-    $db = getDB();
-
+    $db = getDBConnection();
     // 1. Lấy thuốc
     $stmt = $db->prepare("
         SELECT 
@@ -64,7 +75,6 @@ try {
         ");
         $stmt->execute([$total, $invoiceId]);
     }
-
     echo json_encode([
         'success' => true,
         'invoice_id' => $invoiceId,

@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Hồ sơ Bệnh nhân</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <style>
         * {
             margin: 0;
@@ -398,9 +400,10 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div id="sidebar-placeholder"></div>
+    <div class="container" style="margin-left: 250px">
         <header>
-            <h1>📋 Quản lý Hồ sơ Bệnh nhân</h1>
+            <h1>Quản lý Hồ sơ Bệnh nhân</h1>
             <p>Quản lý thông tin và lịch sử khám bệnh của bệnh nhân</p>
         </header>
 
@@ -785,10 +788,14 @@
             }
         });
 
-        // Load dữ liệu khi trang được tải
-        window.onload = function() {
-            loadPatients();
-        };
+    </script>
+    <script src="main.js"></script>
+    <script>
+         // Chạy khi trang load xong
+        window.onload = async function() {
+    await loadSidebar();
+    await loadPatients();
+};
     </script>
 </body>
 </html>
